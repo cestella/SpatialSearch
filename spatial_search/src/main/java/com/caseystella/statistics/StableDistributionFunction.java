@@ -16,7 +16,6 @@ public abstract class StableDistributionFunction implements Function<RealVector,
                                                     , Double
                                                     >
    {
-
       /**
        * {@inheritDoc}
        * @see Function#apply(RandomDataImpl)
@@ -91,7 +90,7 @@ public abstract class StableDistributionFunction implements Function<RealVector,
    }
 
 
-   public abstract Function<RandomDataImpl, Double> 
+   protected abstract Function<RandomDataImpl, Double> 
    getSampler(RandomDataImpl dataSampler);
    
    public Long apply(RealVector vector)
