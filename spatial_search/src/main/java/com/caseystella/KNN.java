@@ -1,20 +1,14 @@
 package com.caseystella;
 
-import java.lang.Iterable;
-
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.math.linear.RealVector;
 
 import com.google.common.base.Function;
-
-import com.google.common.collect.Iterables;
-
-import com.google.common.primitives.Longs;
-
-import com.sun.tools.javac.util.Pair;
 
 public class KNN
 {
@@ -49,7 +43,39 @@ public class KNN
          return payload;
       }
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(payload);
+		result = prime * result + ((vector == null) ? 0 : vector.hashCode());
+		return result;
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Payload other = (Payload) obj;
+		if (!Arrays.equals(payload, other.payload))
+			return false;
+		if (vector == null) {
+			if (other.vector != null)
+				return false;
+		} else if (!vector.equals(other.vector))
+			return false;
+		return true;
+	}
+
+
+   }
+   public static interface IDistanceMetric
+   {
+	   public double apply(RealVector v1, RealVector v2);
    }
    public static interface IHashCreator
    {
@@ -62,6 +88,21 @@ public class KNN
       public Iterable<Payload> getBucket(long key);
    }
 
+   public static IDistanceMetric L1 = new IDistanceMetric()
+   {
+	   @Override
+	public double apply(RealVector v1, RealVector v2) {
+		return v1.getL1Distance(v2);
+	}
+   };
+   public static IDistanceMetric L2 = new IDistanceMetric()
+   {
+	   @Override
+	public double apply(RealVector v1, RealVector v2) {
+		return v1.getDistance(v2);
+	}
+   };
+   
    private Iterable<Function<RealVector, Long>> hashes;
    private IBackingStore backingStore;
    public KNN( int numHashes
@@ -80,16 +121,16 @@ public class KNN
       hashes = hashList;
    }
    
-   public Iterable< Payload> query(RealVector q, Function<RealVector, Double> metric, double limit)
+   public Iterable< Payload> query(RealVector q, IDistanceMetric metric, double limit)
    {
-      List<Payload> results = new ArrayList<Payload>(); 
+      Set<Payload> results = new HashSet<Payload>(); 
       for(Function<RealVector, Long> hash : hashes)
       {
          //find the thing in the bucket
          Iterable<Payload> values = backingStore.getBucket(hash.apply(q));
          for(Payload value : values)
          {
-            if(metric.apply(value.getVector()) < limit)
+            if(metric.apply(q, value.getVector()) < limit)
             {
                results.add(value);
             }
