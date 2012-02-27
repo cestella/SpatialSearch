@@ -6,9 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.math.MathException;
 import org.apache.commons.math.linear.RealVector;
 
-import com.google.common.base.Function;
+import com.caseystella.interfaces.IBackingStore;
+import com.caseystella.interfaces.IDistanceMetric;
+import com.caseystella.interfaces.IHashCreator;
+import com.caseystella.interfaces.ILSH;
 
 public class KNN
 {
@@ -73,64 +77,44 @@ public class KNN
 
 
    }
-   public static interface IDistanceMetric
-   {
-	   public double apply(RealVector v1, RealVector v2);
-   }
-   public static interface IHashCreator
-   {
-      public Function<RealVector, Long> construct(int hashDimension, long seed);
-   }
-
-   public static interface IBackingStore
-   {
-      public void persist(long key, Payload payload);
-      public Iterable<Payload> getBucket(long key);
-   }
-
-   public static IDistanceMetric L1 = new IDistanceMetric()
-   {
-	   @Override
-	public double apply(RealVector v1, RealVector v2) {
-		return v1.getL1Distance(v2);
-	}
-   };
-   public static IDistanceMetric L2 = new IDistanceMetric()
-   {
-	   @Override
-	public double apply(RealVector v1, RealVector v2) {
-		return v1.getDistance(v2);
-	}
-   };
-   
-   private Iterable<Function<RealVector, Long>> hashes;
+   private Iterable<ILSH> hashes;
    private IBackingStore backingStore;
+   private IDistanceMetric underlyingMetric;
    public KNN( int numHashes
              , int hashDimension
              , long seed
              , IHashCreator creator
              , IBackingStore backingStore
-             )
+             ) throws MathException
    {
       this.backingStore = backingStore;
-      List<Function<RealVector, Long > > hashList = new ArrayList<Function<RealVector,Long>> (numHashes);
+      List<ILSH > hashList = new ArrayList<ILSH> (numHashes);
       for(int i = 0;i < numHashes;++i)
       {
-         hashList.add(creator.construct(hashDimension, seed));
+    	  
+         hashList.add(creator.construct(hashDimension, seed + i));
+         if(i == 0)
+         {
+        	 underlyingMetric = hashList.get(0).getMetric();
+         }
       }
       hashes = hashList;
    }
    
-   public Iterable< Payload> query(RealVector q, IDistanceMetric metric, double limit)
+   public IDistanceMetric getUnderlyingMetric() {
+	return underlyingMetric;
+   }
+   
+   public Iterable< Payload> query(RealVector q,  double limit)
    {
       Set<Payload> results = new HashSet<Payload>(); 
-      for(Function<RealVector, Long> hash : hashes)
+      for(ILSH hash : hashes)
       {
          //find the thing in the bucket
          Iterable<Payload> values = backingStore.getBucket(hash.apply(q));
          for(Payload value : values)
          {
-            if(metric.apply(q, value.getVector()) < limit)
+            if(hash.getMetric().apply(q, value.getVector()) < limit)
             {
                results.add(value);
             }
@@ -141,7 +125,7 @@ public class KNN
    
    public void insert(Payload payload)
    {
-      for(Function<RealVector, Long> hash : hashes)
+      for(ILSH hash : hashes)
       {
          long key = hash.apply(payload.getVector());
          backingStore.persist(key, payload);
