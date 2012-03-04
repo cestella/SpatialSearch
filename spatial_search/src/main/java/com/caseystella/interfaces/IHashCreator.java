@@ -2,8 +2,10 @@ package com.caseystella.interfaces;
 
 import org.apache.commons.math.MathException;
 
+import com.caseystella.lsh.interfaces.ILSH;
+
 
 public interface IHashCreator
 {
-	public ILSH construct(int hashDimension, long seed) throws MathException;
+	public ILSH construct(long seed) throws MathException;
 }

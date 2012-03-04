@@ -14,10 +14,8 @@ import org.apache.commons.math.linear.RealVector;
 
 import com.caseystella.KNN;
 import com.caseystella.KNN.Payload;
-import com.caseystella.interfaces.IHashCreator;
-import com.caseystella.interfaces.ILSH;
-import com.caseystella.math.stabledistribution.L1LSH;
-import com.caseystella.math.stabledistribution.L2LSH;
+import com.caseystella.lsh.L1LSH;
+import com.caseystella.lsh.L2LSH;
 import com.caseystella.util.InMemoryBackingStore;
 
 public class StableDistributionTest extends TestCase 
@@ -58,7 +56,7 @@ public class StableDistributionTest extends TestCase
     	}
     	
     	RealVector query = new ArrayRealVector(new double[] { 0, 0, 0} );
-    	Iterable<Payload> results = knn.query(query, .3);
+    	Iterable<Payload> results = knn.query(query, .3).getPayloads();
     	int hypothesisPayloadSize = 0;
     	for(Payload result : results)
     	{
@@ -84,15 +82,8 @@ public class StableDistributionTest extends TestCase
     	KNN knn = new KNN(3
     					 , 3
     					 , 0
-    					 , new IHashCreator()
-    	{
-    		@Override
-    		public ILSH construct(int hashDimension,
-    				long seed) throws MathException {
-    			return new L1LSH(3, 1.0f, seed);
-    			
-    		}
-    	}, new InMemoryBackingStore()
+    					 , new L1LSH.Creator(3, .50f)
+    					 , new InMemoryBackingStore()
 		
     					 );
     	driver(knn);
@@ -103,18 +94,35 @@ public class StableDistributionTest extends TestCase
     	KNN knn = new KNN(3
     					 , 3
     					 , 0
-    					 , new IHashCreator()
-    	{
-    		@Override
-    		public ILSH construct(int hashDimension,
-    				long seed) throws MathException {
-    			return new L2LSH(3, 1.0f, seed);
-    			
-    		}
-    	}, new InMemoryBackingStore()
+    					 , new L2LSH.Creator(3, 1.0f)
+    					 , new InMemoryBackingStore()
 		
     					 );
     	driver(knn);
     }
     
+//    public void testRepeating() throws MathException
+//    {
+//    	{
+//	    	KNN knn = new KNN(4
+//	    					 , 3
+//	    					 , 0
+//	    					 , new RepeatingLSH.Creator(3, new L2LSH.Creator(3, 1.0f))
+//	    					 , new InMemoryBackingStore()
+//			
+//	    					 );
+//	    	driver(knn);
+//    	}
+//    	{
+//	    	KNN knn = new KNN(2
+//	    					 , 3
+//	    					 , 0
+//	    					 , new RepeatingLSH.Creator(5, new L1LSH.Creator(3, 1.0f))
+//	    					 , new InMemoryBackingStore()
+//			
+//	    					 );
+//	    	driver(knn);
+//    	}
+//    	
+//    }
 }

@@ -12,7 +12,7 @@ import org.apache.commons.math.linear.RealVector;
 import com.caseystella.interfaces.IBackingStore;
 import com.caseystella.interfaces.IDistanceMetric;
 import com.caseystella.interfaces.IHashCreator;
-import com.caseystella.interfaces.ILSH;
+import com.caseystella.lsh.interfaces.ILSH;
 
 public class KNN
 {
@@ -77,6 +77,25 @@ public class KNN
 
 
    }
+   
+   public static class Result
+   {
+	   private Iterable<Payload> payloads;
+	   private int totalItemsReturned;
+	   Result(Iterable<Payload> payloads, int totalItemsReturned)
+	   {
+		   this.payloads = payloads;
+		   this.totalItemsReturned = totalItemsReturned;
+	   }
+	   
+	   public Iterable<Payload> getPayloads() {
+		return payloads;
+	   }
+	   
+	   public int getTotalItemsReturned() {
+		return totalItemsReturned;
+	   }
+   }
    private Iterable<ILSH> hashes;
    private IBackingStore backingStore;
    private IDistanceMetric underlyingMetric;
@@ -92,7 +111,7 @@ public class KNN
       for(int i = 0;i < numHashes;++i)
       {
     	  
-         hashList.add(creator.construct(hashDimension, seed + i));
+         hashList.add(creator.construct(seed + i));
          if(i == 0)
          {
         	 underlyingMetric = hashList.get(0).getMetric();
@@ -105,22 +124,24 @@ public class KNN
 	return underlyingMetric;
    }
    
-   public Iterable< Payload> query(RealVector q,  double limit)
+   public Result query(RealVector q,  double limit)
    {
       Set<Payload> results = new HashSet<Payload>(); 
+      int totalItemsReturned = 0;
       for(ILSH hash : hashes)
       {
          //find the thing in the bucket
          Iterable<Payload> values = backingStore.getBucket(hash.apply(q));
          for(Payload value : values)
          {
+        	 totalItemsReturned++;
             if(hash.getMetric().apply(q, value.getVector()) < limit)
             {
                results.add(value);
             }
          } 
       }
-      return results;
+      return new Result(results, totalItemsReturned);
    }
    
    public void insert(Payload payload)

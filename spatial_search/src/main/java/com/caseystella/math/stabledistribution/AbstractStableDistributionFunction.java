@@ -6,7 +6,7 @@ import org.apache.commons.math.random.JDKRandomGenerator;
 import org.apache.commons.math.random.RandomDataImpl;
 import org.apache.commons.math.random.RandomGenerator;
 
-import com.caseystella.interfaces.ILSH;
+import com.caseystella.lsh.interfaces.ILSH;
 import com.google.common.base.Function;
 
 public abstract class AbstractStableDistributionFunction implements ILSH

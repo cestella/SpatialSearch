@@ -1,2 +1,5 @@
 .metadata
 target
+points.dat
+points_1000.dat
+spatial_search/estimations*.dat
