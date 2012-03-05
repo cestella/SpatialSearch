@@ -3,9 +3,3 @@ target
 points.dat
 points_1000.dat
 spatial_search/estimations*.dat
-*.aux
-*.log
-*.nav
-*.out
-*.snm
-*.toc
