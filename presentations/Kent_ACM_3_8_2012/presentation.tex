@@ -16,9 +16,9 @@
 \frame{\frametitle{Introduction}
 \begin{itemize}
 \item Hi, I'm Casey\pause
-\item I am a recovering Mathematician\pause
 \item I work at Explorys\pause
 \item I am a senior engineer on the high speed indexes team\pause
+\item I am also a recovering Mathematician\pause
 \item I use Hadoop and HBase (a NoSQL datastore) every day\pause
 \item I'm here to talk about Near-Neighbor Searches\pause
 \item In particular, about how they're hard to do efficiently at scale.
@@ -30,8 +30,8 @@
 \begin{itemize}
 \item Given a point in a vector space, find the nearest points according to some metric\pause
    \begin{itemize}
-   \item You probably know a few, like $\mathbb{R}^2$ from Calculus\pause
-   \item You probably know a metric like $L_2$, or the Euclidean metric\pause
+   \item You probably know a few vector spaces, like $\mathbb{R}^2$ from Calculus\pause
+   \item You probably know a metric or two like $L_2$ aka the Euclidean metric\pause
    \item Or $L_1$ a.k.a. Taxicab distance from A.I.\pause
    \end{itemize}
 \item Many problems can be rephrased as a near neighbor search (or use it as a primary component)\pause
@@ -49,7 +49,7 @@
 \item A less na\"{\i}ve approach typically involves $kd$-trees\pause
 \item These tend to scale poorly in very high dimensions\pause
    \begin{itemize}
-   \item The rule of thumb is for dimension $k$ and number of points $N$, $N >> 2^{k}$\footnote[1]{Jacob E. Goodman, Joseph O'Rourke and Piotr Indyk (Ed.) (2004). ``Chapter 39 : Nearest neighbours in high-dimensional spaces''. Handbook of Discrete and Computational Geometry (2nd ed.). CRC Press.}\pause
+   \item The rule of thumb\footnote[1]{Jacob E. Goodman, Joseph O'Rourke and Piotr Indyk (Ed.) (2004). ``Chapter 39 : Nearest neighbours in high-dimensional spaces''. Handbook of Discrete and Computational Geometry (2nd ed.). CRC Press.} is, for dimension $k$ and number of points $N$, $N >> 2^{k}$\pause
    \item Otherwise you end up doing a nearly exhaustive search most of the time\pause
    \item In these situations, approximation algorithms are typically used\pause
    \end{itemize}
@@ -67,8 +67,9 @@
    \begin{itemize}
    \item Explicit sharding breaks joins\pause
    \item Have to worry about node availability yourself\pause
-   \item A lot of engineering work
+   \item A lot of engineering work\pause
    \end{itemize}
+\item It's a hard problem and you have to give up many of the benefits of SQL to solve it.
 \end{itemize}
 }
 
@@ -76,6 +77,9 @@
 \begin{itemize}
 \item Recently there has been a movement to use distributed schema-less data stores instead\pause
 \item These also happen to be a pain in the ass\pause
+   \begin{itemize}
+   \item Don't hate the player, hate the scale\pause
+   \end{itemize}
 \item Conform to a map interface typically\pause
    \begin{itemize}
    \item put(Key k, Value v)
@@ -117,9 +121,8 @@
 \item Not all LSH functions have theoretical bounds about accuracy\pause
    \begin{itemize}
    \item Almost all research focuses on {\bf nearest} neighbor searches\pause
-   \item Practical alternative is to sample your data and measure
+   \item Practical alternative is to sample your data and measure to determine parameters empirically
    \end{itemize}
-
 \end{itemize}
 }
 
@@ -130,7 +133,7 @@
 \item What the hell are $p$-stable distributions?\pause
    \begin{itemize}
    \item It's complicated and can be considered a black-box if you like (tune out for the next minute or so)\pause
-   \item If you draw a vector $a$ from a $p$-stable distribution $X$, $a.(v_1 - v_2)$ is distributed exactly as $||v_1 - v_2||X$\pause
+   \item If you draw a vector $\mathbf{a}$ from a $p$-stable distribution $X$, $\mathbf{a}\cdot(\mathbf{v_1} - \mathbf{v_2})$ is distributed exactly as $||\mathbf{v_1} - \mathbf{v_2}||_pX$\pause
    \item Know that the Normal distribution is $2$-stable and the Cauchy distribution is $1$-stable
    \end{itemize}
 \end{itemize}
@@ -138,10 +141,10 @@
 
 \frame{\frametitle{Some Intuition}
 \begin{itemize}
-\item Take the real number line and split it up into segments of length $r$, we can assign each segment an index and hash vectors into these segments.\pause
-\item This should preserve locality because we're mapping $a.(v_1 - v_2)$ onto that segment\pause
-\item Different choices of $a$ make different functions with the same characteristics.\pause
-\item If you don't understand, that's ok..it's not terribly obvious.
+\item Take the real number line and split it up into segments of length $r$, we can assign each segment an index and hash vectors into these segments: $\mathbf{v} \rightarrow \lfloor\frac{\mathbf{a}\cdot\mathbf{v}}{r}\rfloor$.\pause
+\item $\frac{\mathbf{a}\cdot(\mathbf{v_1} - \mathbf{v_2})}{r}$ is distributed as $\frac{||\mathbf{v_1} - \mathbf{v_2}||_p}{r}X$ due to $X$ being $p$-stable\pause
+\item So $\mathbf{v_1}$ and $\mathbf{v_2}$ should map to the same segment with high probability if they're within radius $r$ of each other.\pause
+\item Different choices of $\mathbf{a}$ can form families of these hash functions.
 \end{itemize}
 }
 
