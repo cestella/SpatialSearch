@@ -28,13 +28,13 @@
 \section{Near Neighbor Search}
 \frame{\frametitle{Near Neighbor Search}
 \begin{itemize}
-\item Given a point in a vector space, find the nearest points according to some metric
+\item Given a point in a vector space, find the nearest points according to some metric\pause
    \begin{itemize}
-   \item You probably know a few, like $\mathbb{R}^2$ from Calculus
-   \item You probably know a metric like $L_2$, or the euclidean metric
-   \item Or $L_1$ a.k.a. Taxicab distance from A.I.
+   \item You probably know a few, like $\mathbb{R}^2$ from Calculus\pause
+   \item You probably know a metric like $L_2$, or the Euclidean metric\pause
+   \item Or $L_1$ a.k.a. Taxicab distance from A.I.\pause
    \end{itemize}
-\item Many problems can be rephrased as a near neighbor search (or use it as a primary component)
+\item Many problems can be rephrased as a near neighbor search (or use it as a primary component)\pause
    \begin{itemize}
    \item Recommendation Systems
    \item Contextual Marketing (i.e. ads)
@@ -45,13 +45,13 @@
 }
 \frame{\frametitle{Traditional Approach}
 \begin{itemize}
-\item A na\"{\i}ve approach would be $O(n)$
-\item A less na\"{\i}ve approach typically involves $kd$-trees
-\item These tend to scale poorly in very high dimensions
+\item A na\"{\i}ve approach would be $O(n)$\pause
+\item A less na\"{\i}ve approach typically involves $kd$-trees\pause
+\item These tend to scale poorly in very high dimensions\pause
    \begin{itemize}
-   \item The rule of thumb is for dimension $k$ and number of points $N$, $N >> 2^{k}$\footnote[1]{Jacob E. Goodman, Joseph O'Rourke and Piotr Indyk (Ed.) (2004). ``Chapter 39 : Nearest neighbours in high-dimensional spaces''. Handbook of Discrete and Computational Geometry (2nd ed.). CRC Press.}
-   \item Otherwise you end up doing a nearly exhaustive search most of the time
-   \item In these situations, approximation algorithms are typically used
+   \item The rule of thumb is for dimension $k$ and number of points $N$, $N >> 2^{k}$\footnote[1]{Jacob E. Goodman, Joseph O'Rourke and Piotr Indyk (Ed.) (2004). ``Chapter 39 : Nearest neighbours in high-dimensional spaces''. Handbook of Discrete and Computational Geometry (2nd ed.). CRC Press.}\pause
+   \item Otherwise you end up doing a nearly exhaustive search most of the time\pause
+   \item In these situations, approximation algorithms are typically used\pause
    \end{itemize}
 \item It's also not clear that they work for non-$L_2$ metrics
 \end{itemize}
@@ -61,12 +61,12 @@
 
 \frame{\frametitle{``Big Data''}
 \begin{itemize}
-\item Sometimes we have to deal with large amounts of data
-\item Traditionally we've put that data in SQL tables
-\item Scaling SQL databases is a pain in the ass
+\item Sometimes we have to deal with large amounts of data\pause
+\item Traditionally we've put that data in SQL tables\pause
+\item Scaling SQL databases is a pain in the ass\pause
    \begin{itemize}
-   \item Explicit sharding breaks joins
-   \item Have to worry about node availability yourself
+   \item Explicit sharding breaks joins\pause
+   \item Have to worry about node availability yourself\pause
    \item A lot of engineering work
    \end{itemize}
 \end{itemize}
@@ -74,15 +74,15 @@
 
 \frame{\frametitle{Schema-less NoSQL data stores}
 \begin{itemize}
-\item Recently there has been a movement to use distributed schema-less data stores instead
-\item These also happen to be a pain in the ass
-\item Conform to a map interface typically
+\item Recently there has been a movement to use distributed schema-less data stores instead\pause
+\item These also happen to be a pain in the ass\pause
+\item Conform to a map interface typically\pause
    \begin{itemize}
    \item put(Key k, Value v)
    \item get(Key k)
-   \item delete(Key k)
+   \item delete(Key k)\pause
    \end{itemize}
-\item Examples of these are HBase, Cassandra, MongoDB, MemcacheDB
+\item Examples of these are HBase, Cassandra, MongoDB, MemcacheDB\pause
 \item It would be very nice to be able to use this to find nearest neighbors, but how?
 \end{itemize}
 }
@@ -91,32 +91,32 @@
 
 \frame{\frametitle{Near Neighbor Searches}
 \begin{itemize}
-\item Often we {\bf need} high dimension (see previous talk)
-\item Often we have {\bf many} points
-\item Often we'll accept an approximation
+\item Often we {\bf need} high dimension (see previous talk)\pause
+\item Often we have {\bf many} points\pause
+\item Often we'll accept an approximation\pause
 \item Often we are looking for data in a fixed radius.
 \end{itemize}
 }
 
 \frame{\frametitle{Locality Sensitive Hashing}
 \begin{itemize}
-\item {\bf Locality Sensitive Hashing} is a probabalistic technique to group ``close'' vectors according to a given metric.
-\item We can use this to group our ``near'' vectors into buckets
-\item You can construct multiple hash functions (i.e. families) and compose to increase the accuracy at the expense of runtime complexity
+\item {\bf Locality Sensitive Hashing} is a probabalistic technique to group ``close'' vectors according to a given metric.\pause
+\item We can use this to group our ``near'' vectors into buckets\pause
+\item You can construct multiple hash functions (i.e. families) and compose to increase the accuracy at the expense of runtime complexity\pause
 \item You can use multiple LSH functions and put the same input data into each bucket, thereby increasing accuracy at the expense of space complexity
 \end{itemize}
 }
 
 \frame{\frametitle{Locality Sensitive Hashing: The Cons}
 \begin{itemize}
-\item Different hash function for different distance metrics (not all have them)
+\item Different hash function for different distance metrics (not all have them)\pause
    \begin{itemize}
-   \item Exist for the biggest ones
-   \item $L_k$ for $k > 0$, cosine-distance, min-hash, kernel-based metrics (i.e. machine learned distance metrics)
+   \item Exist for the biggest ones\pause
+   \item $L_k$ for $k > 0$, cosine-distance, min-hash, kernel-based metrics (i.e. machine learned distance metrics)\pause
    \end{itemize}
-\item Not all LSH functions have theoretical bounds about accuracy
+\item Not all LSH functions have theoretical bounds about accuracy\pause
    \begin{itemize}
-   \item Almost all research focuses on {\bf nearest} neighbor searches
+   \item Almost all research focuses on {\bf nearest} neighbor searches\pause
    \item Practical alternative is to sample your data and measure
    \end{itemize}
 
@@ -125,23 +125,23 @@
 
 \frame{\frametitle{Stable Distributions and the $L_k$ metric}
 \begin{itemize}
-\item Based on the research of Piotr Indyk, et. al.\footnote[2]{Datar, M.; Immorlica, N., Indyk, P., Mirrokni, V.S. (2004). ``Locality-Sensitive Hashing Scheme Based on p-Stable Distributions''. Proceedings of the Symposium on Computational Geometry.}
-\item They found that $1$-stable and $2$-stable distributions could be used to construct families of locality sensitive hashes for $L_1$ and $L_2$ metrics
-\item What the hell are $p$-stable distributions?
+\item Based on the research of Piotr Indyk, et. al.\footnote[2]{Datar, M.; Immorlica, N., Indyk, P., Mirrokni, V.S. (2004). ``Locality-Sensitive Hashing Scheme Based on p-Stable Distributions''. Proceedings of the Symposium on Computational Geometry.}\pause
+\item They found that $1$-stable and $2$-stable distributions could be used to construct families of locality sensitive hashes for $L_1$ and $L_2$ metrics\pause
+\item What the hell are $p$-stable distributions?\pause
    \begin{itemize}
-   \item If you draw a vector $a$ from a $p$-stable distribution $X$, $a.(v_1 - v_2)$ is distributed exactly as $||v_1 - v_2||X$
+   \item It's complicated and can be considered a black-box if you like (tune out for the next minute or so)\pause
+   \item If you draw a vector $a$ from a $p$-stable distribution $X$, $a.(v_1 - v_2)$ is distributed exactly as $||v_1 - v_2||X$\pause
    \item Know that the Normal distribution is $2$-stable and the Cauchy distribution is $1$-stable
    \end{itemize}
-\item Some intuition:
 \end{itemize}
 }
 
 \frame{\frametitle{Some Intuition}
 \begin{itemize}
-\item Take the real number line and split it up into segments of length $r$, we can assign each segment an index and hash vectors into these segments.
-\item This should preserve locality because we're mapping $a.(v_1 - v_2)$ onto that segment
-\item Different choices of $a$ make different functions with the same characteristics.
-\item If you don't understand, that's ok..it's not terribly obvious.  You can treat this as a black box.
+\item Take the real number line and split it up into segments of length $r$, we can assign each segment an index and hash vectors into these segments.\pause
+\item This should preserve locality because we're mapping $a.(v_1 - v_2)$ onto that segment\pause
+\item Different choices of $a$ make different functions with the same characteristics.\pause
+\item If you don't understand, that's ok..it's not terribly obvious.
 \end{itemize}
 }
 
@@ -149,10 +149,10 @@
 
 \frame{\frametitle{Spatial Search}
 \begin{itemize}
-\item I've begun creating a simple library to assist in the use of these locality sensitive hashes
-\item It's Datastore agnostic
-\item $L_1$ and $L_2$ are implemented as well as a utility to assist in choosing parameters
-\item Next up is min-hash
+\item I've begun creating a simple library to assist in the use of these locality sensitive hashes\pause
+\item It's Datastore agnostic\pause
+\item $L_1$ and $L_2$ are implemented as well as a utility to assist in choosing parameters\pause
+\item Next up is min-hash\pause
 \item \url{https://github.com/cestella/SpatialSearch}
 \end{itemize}
 }
@@ -166,6 +166,7 @@
   \item \url{http://caseystella.com}
   \item \url{https://github.com/cestella}
   \end{itemize}
+\item PS. If you like this...Explorys is hiring!
 \end{itemize}
 }
 
